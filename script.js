@@ -2,10 +2,20 @@ const imageUpload = document.getElementById('imageUpload');
 const removeBackgroundBtn = document.getElementById("removeBackgroundBtn");
 const loader = document.getElementById('loader');
 const outputCanvas = document.getElementById('outputCanvas')
+const downloadBtn = document.getElementById('downloadBtn');
+
 
 const API_KEY = 'ouwi2VQxxPUuDS4KNMtyCwdN';
 
 //50 credits per month
+
+function enableDownload() {
+    downloadBtn.removeAttribute('disabled');
+}
+
+function disableDownload() {
+    downloadBtn.setAttribute('disabled', '');
+}
 
 
 imageUpload.addEventListener('change', () => {
@@ -22,6 +32,9 @@ removeBackgroundBtn.addEventListener('click', () => {
     formData.append('image_file', file);
 
     loader.style.display = 'block';
+    removeBackgroundBtn.setAttribute('disabled', '');
+    disableDownload();
+
 
     fetch('https://api.remove.bg/v1.0/removebg', {
         method: 'POST',
@@ -46,13 +59,23 @@ removeBackgroundBtn.addEventListener('click', () => {
                 URL.revokeObjectURL(imageUrl);
                 loader.style.display = 'none';
                 outputCanvas.style.display = 'block';
+                enableDownload();
             };
         })
         .catch(error => {
             console.error(error);
+            disableDownload();
             alert('An Issue Has been occured try after some time')
             loader.style.display = 'none';
         })
-
+        downloadBtn.addEventListener('click', () => {
+            const canvas = document.getElementById('outputCanvas');
+            const imageType = 'image/png'; // Modify this if you want a different image format
+            const imageData = canvas.toDataURL(imageType);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageData;
+            downloadLink.download = 'modified_image.png'; // Modify the filename and extension as needed
+            downloadLink.click();
+        });    
 
 })
